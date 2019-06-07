@@ -277,6 +277,21 @@ public class ProbeInserterTest {
 				0, new Object[] {});
 	}
 
+	@Test
+	public void visitFrame_should_not_refill_taken_safety_slot() {
+		ProbeInserter pi = new ProbeInserter(0, "m", "()V", actualVisitor,
+				arrayStrategy);
+
+		pi.visitFrame(Opcodes.F_NEW, 1, new Object[] { //
+				Opcodes.LONG, // overwrites 'this'
+		}, 0, new Object[] {});
+
+		expectedVisitor.visitFrame(Opcodes.F_NEW, 2, new Object[] { //
+				Opcodes.LONG, //
+				"[Z", // probe array
+		}, 0, new Object[] {});
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testVisitFrame_invalidType() {
 		ProbeInserter pi = new ProbeInserter(0, "m", "()V", actualVisitor,
