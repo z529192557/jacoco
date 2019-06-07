@@ -60,7 +60,7 @@ public class ProbeInserterTest {
 				actualVisitor, arrayStrategy);
 		pi.insertProbe(0);
 
-		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 1);
 		expectedVisitor.visitInsn(Opcodes.ICONST_0);
 		expectedVisitor.visitInsn(Opcodes.ICONST_1);
 		expectedVisitor.visitInsn(Opcodes.BASTORE);
@@ -72,7 +72,7 @@ public class ProbeInserterTest {
 				arrayStrategy);
 		pi.insertProbe(0);
 
-		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 1);
+		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 2);
 		expectedVisitor.visitInsn(Opcodes.ICONST_0);
 		expectedVisitor.visitInsn(Opcodes.ICONST_1);
 		expectedVisitor.visitInsn(Opcodes.BASTORE);
@@ -84,7 +84,7 @@ public class ProbeInserterTest {
 				actualVisitor, arrayStrategy);
 		pi.insertProbe(0);
 
-		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 4);
+		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 5);
 		expectedVisitor.visitInsn(Opcodes.ICONST_0);
 		expectedVisitor.visitInsn(Opcodes.ICONST_1);
 		expectedVisitor.visitInsn(Opcodes.BASTORE);
@@ -96,7 +96,7 @@ public class ProbeInserterTest {
 				arrayStrategy);
 		pi.insertProbe(0);
 
-		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 5);
+		expectedVisitor.visitVarInsn(Opcodes.ALOAD, 6);
 		expectedVisitor.visitInsn(Opcodes.ICONST_0);
 		expectedVisitor.visitInsn(Opcodes.ICONST_1);
 		expectedVisitor.visitInsn(Opcodes.BASTORE);
@@ -136,9 +136,9 @@ public class ProbeInserterTest {
 		expectedVisitor.visitVarInsn(Opcodes.ILOAD, 1);
 		expectedVisitor.visitVarInsn(Opcodes.ILOAD, 2);
 
-		// Local variables are shifted by one:
-		expectedVisitor.visitVarInsn(Opcodes.ISTORE, 4);
-		expectedVisitor.visitVarInsn(Opcodes.FSTORE, 5);
+		// Local variables are shifted by two:
+		expectedVisitor.visitVarInsn(Opcodes.ISTORE, 5);
+		expectedVisitor.visitVarInsn(Opcodes.FSTORE, 6);
 	}
 
 	@Test
@@ -156,9 +156,9 @@ public class ProbeInserterTest {
 		expectedVisitor.visitIincInsn(1, 101);
 		expectedVisitor.visitIincInsn(2, 102);
 
-		// Local variables are shifted by one:
-		expectedVisitor.visitIincInsn(4, 103);
-		expectedVisitor.visitIincInsn(5, 104);
+		// Local variables are shifted by two:
+		expectedVisitor.visitIincInsn(5, 103);
+		expectedVisitor.visitIincInsn(6, 104);
 	}
 
 	@Test
@@ -177,9 +177,9 @@ public class ProbeInserterTest {
 		expectedVisitor.visitLocalVariable(null, null, null, null, null, 1);
 		expectedVisitor.visitLocalVariable(null, null, null, null, null, 2);
 
-		// Local variables are shifted by one:
-		expectedVisitor.visitLocalVariable(null, null, null, null, null, 4);
+		// Local variables are shifted by two:
 		expectedVisitor.visitLocalVariable(null, null, null, null, null, 5);
+		expectedVisitor.visitLocalVariable(null, null, null, null, null, 6);
 	}
 
 	@Test
@@ -190,7 +190,7 @@ public class ProbeInserterTest {
 		pi.visitMaxs(0, 8);
 
 		expectedVisitor.visitLdcInsn("init");
-		expectedVisitor.visitMaxs(5, 9);
+		expectedVisitor.visitMaxs(5, 10);
 	}
 
 	@Test
@@ -201,7 +201,7 @@ public class ProbeInserterTest {
 		pi.visitMaxs(10, 8);
 
 		expectedVisitor.visitLdcInsn("init");
-		expectedVisitor.visitMaxs(13, 9);
+		expectedVisitor.visitMaxs(13, 10);
 	}
 
 	@Test
@@ -212,8 +212,13 @@ public class ProbeInserterTest {
 		pi.visitFrame(Opcodes.F_NEW, 3, new Object[] { "Foo", Opcodes.LONG,
 				"java/lang/String" }, 0, new Object[0]);
 
-		expectedVisitor.visitFrame(Opcodes.F_NEW, 4, new Object[] { "Foo",
-				Opcodes.LONG, "[Z", "java/lang/String" }, 0, new Object[0]);
+		expectedVisitor.visitFrame(Opcodes.F_NEW, 5, new Object[] { //
+				"Foo", //
+				Opcodes.LONG, //
+				Opcodes.TOP, // safety slot
+				"[Z", // probe array
+				"java/lang/String" //
+		}, 0, new Object[0]);
 	}
 
 	@Test
@@ -223,8 +228,10 @@ public class ProbeInserterTest {
 
 		pi.visitFrame(Opcodes.F_NEW, 0, new Object[] {}, 0, new Object[0]);
 
-		expectedVisitor.visitFrame(Opcodes.F_NEW, 1, new Object[] { "[Z" }, 0,
-				new Object[0]);
+		expectedVisitor.visitFrame(Opcodes.F_NEW, 2, new Object[] { //
+				Opcodes.TOP, // safety slot
+				"[Z" // probe array
+		}, 0, new Object[0]);
 	}
 
 	@Test
@@ -235,8 +242,12 @@ public class ProbeInserterTest {
 		pi.visitFrame(Opcodes.F_NEW, 2, new Object[] { Opcodes.DOUBLE, "Foo" },
 				0, new Object[0]);
 
-		expectedVisitor.visitFrame(Opcodes.F_NEW, 3, new Object[] { "[Z",
-				Opcodes.DOUBLE, "Foo" }, 0, new Object[0]);
+		expectedVisitor.visitFrame(Opcodes.F_NEW, 4, new Object[] {
+				Opcodes.TOP, // safety slot
+				"[Z", // probe array
+				Opcodes.DOUBLE, //
+				"Foo" //
+		}, 0, new Object[0]);
 	}
 
 	@Test
@@ -247,8 +258,11 @@ public class ProbeInserterTest {
 		pi.visitFrame(Opcodes.F_NEW, 0, new Object[] {}, 0, new Object[] {});
 
 		// The locals in this frame are filled with TOP up to the probe variable
-		expectedVisitor.visitFrame(Opcodes.F_NEW, 2, new Object[] {
-				Opcodes.TOP, "[Z", }, 0, new Object[] {});
+		expectedVisitor.visitFrame(Opcodes.F_NEW, 3, new Object[] { //
+				Opcodes.TOP, //
+				Opcodes.TOP, // safety slot
+				"[Z", // probe array
+		}, 0, new Object[] {});
 	}
 
 	@Test
@@ -259,8 +273,12 @@ public class ProbeInserterTest {
 		pi.visitFrame(Opcodes.F_NEW, 0, new Object[] {}, 0, new Object[] {});
 
 		// The locals in this frame are filled with TOP up to the probe variable
-		expectedVisitor.visitFrame(Opcodes.F_NEW, 3, new Object[] {
-				Opcodes.TOP, Opcodes.TOP, "[Z", }, 0, new Object[] {});
+		expectedVisitor.visitFrame(Opcodes.F_NEW, 4, new Object[] { //
+				Opcodes.TOP, //
+				Opcodes.TOP, //
+				Opcodes.TOP, // safety slot
+				"[Z", // probe array
+		}, 0, new Object[] {});
 	}
 
 	@Test
@@ -272,9 +290,14 @@ public class ProbeInserterTest {
 				new Object[] {});
 
 		// The locals in this frame are filled with TOP up to the probe variable
-		expectedVisitor.visitFrame(Opcodes.F_NEW, 5, new Object[] {
-				Opcodes.DOUBLE, Opcodes.TOP, Opcodes.TOP, Opcodes.TOP, "[Z", },
-				0, new Object[] {});
+		expectedVisitor.visitFrame(Opcodes.F_NEW, 6, new Object[] { //
+				Opcodes.DOUBLE, //
+				Opcodes.TOP, //
+				Opcodes.TOP, //
+				Opcodes.TOP, //
+				Opcodes.TOP, // safety slot
+				"[Z", // probe array
+		}, 0, new Object[] {});
 	}
 
 	@Test
