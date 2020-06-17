@@ -26,8 +26,8 @@
   <name>JaCoCo :: Test :: Core :: Validation Groovy</name>
 
   <properties>
-    <gmaven.version>1.8.1</gmaven.version>
-    <groovy.version>2.5.12</groovy.version>
+    <gmaven.version>1.9.0</gmaven.version>
+    <groovy.version>3.0.4</groovy.version>
   </properties>
 
   <dependencies>
