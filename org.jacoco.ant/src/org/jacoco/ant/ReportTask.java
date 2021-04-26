@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2020 Mountainminds GmbH & Co. KG and Contributors
+ * Copyright (c) 2009, 2021 Mountainminds GmbH & Co. KG and Contributors
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which is available at
  * http://www.eclipse.org/legal/epl-2.0
@@ -585,7 +585,7 @@ public class ReportTask extends Task {
 				Integer.valueOf(bundle.getClassCounter().getTotalCount())));
 		if (!nomatch.isEmpty()) {
 			log(format(
-					"Classes in bundle '%s' do no match with execution data. "
+					"Classes in bundle '%s' do not match with execution data. "
 							+ "For report generation the same class files must be used as at runtime.",
 					bundle.getName()), Project.MSG_WARN);
 			for (final IClassCoverage c : nomatch) {
